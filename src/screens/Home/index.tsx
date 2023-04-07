@@ -21,7 +21,7 @@ export function Home() {
         <PhotoProfile source={user} />
       </Header>
 
-      <Percent percent={50} />
+      <Percent percent={49} />
 
       <NewFood>
         <TextFood>Refeições</TextFood>
