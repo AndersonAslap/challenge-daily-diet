@@ -2,10 +2,8 @@ import { Text } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import styled, { css } from 'styled-components/native'
 
-export type TextStyleProps = 'SUCCESS' | 'FAIL'
-
 type Props = {
-  status: TextStyleProps
+  inDiet: boolean
 }
 
 export const Container = styled(SafeAreaView)`
@@ -18,10 +16,8 @@ export const Container = styled(SafeAreaView)`
 `
 
 export const Title = styled(Text)<Props>`
-  ${({ theme, status }) => css`
-    color: ${status === 'SUCCESS'
-      ? theme.COLORS.GREEN_DARK
-      : theme.COLORS.RED_DARK};
+  ${({ theme, inDiet }) => css`
+    color: ${inDiet ? theme.COLORS.GREEN_DARK : theme.COLORS.RED_DARK};
 
     font-family: ${theme.FONT_FAMILY.BOLD};
     font-size: ${theme.FONT_SIZE['2XL']}px;

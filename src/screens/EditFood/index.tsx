@@ -11,15 +11,24 @@ import { Input } from '@components/Input'
 import { Button } from '@components/Button'
 import { Label } from '@components/Label'
 import { Select } from '@components/Select'
-import { useState } from 'react'
-import { useNavigation } from '@react-navigation/native'
+import { useEffect, useState } from 'react'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { Alert } from 'react-native'
-import { Food } from '@storage/food/FoodStorageDTO'
-import { foodCreate } from '@storage/food/foodCreate'
+import { foodGetById } from '@storage/food/foodGetById'
+import { foodUpdate } from '@storage/food/foodUpdate'
 
-export function NewFood() {
+type RouteParams = {
+  id: number
+}
+
+export function EditFood() {
   const [selectActiveInDient, setSelectActiveInDiet] = useState(false)
   const [selectActiveNotInDient, setSelectActiveNotInDiet] = useState(false)
+
+  const route = useRoute()
+  const { id } = route.params as RouteParams
+
+  const navigation = useNavigation()
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -27,23 +36,21 @@ export function NewFood() {
   const [timer, setTimer] = useState('')
   const [inDiet, setInDiet] = useState(false)
 
-  const navigation = useNavigation()
-
   function handleSelectActive(type: string) {
     if (type === 'SUCCESS') {
-      setInDiet(true)
       setSelectActiveInDiet(true)
       setSelectActiveNotInDiet(false)
+      setInDiet(true)
     } else {
-      setInDiet(false)
       setSelectActiveInDiet(false)
       setSelectActiveNotInDiet(true)
+      setInDiet(false)
     }
   }
 
-  async function handleAddFood() {
-    const food: Food = {
-      id: new Date().getTime(),
+  async function handleUpdateFood() {
+    const food = {
+      id,
       name,
       description,
       date,
@@ -52,17 +59,37 @@ export function NewFood() {
     }
 
     try {
-      await foodCreate(food)
-      navigation.navigate('feedback', { inDiet })
+      await foodUpdate(food)
+      navigation.navigate('home')
     } catch (error) {
       console.log(error)
-      Alert.alert('Criar comida', 'Não foi possível cadastrar a comida.')
+      Alert.alert('Editar', 'Falha ao editar os dados.')
     }
   }
 
+  async function fetchFood() {
+    try {
+      const { name, description, date, timer, inDiet } = await foodGetById(id)
+      setName(name)
+      setDescription(description)
+      setDate(date)
+      setTimer(timer)
+      setInDiet(inDiet)
+
+      handleSelectActive(inDiet ? 'SUCCESS' : 'FAIL')
+    } catch (error) {
+      console.log(error)
+      Alert.alert('Editar', 'Falha ao obter os dados.')
+    }
+  }
+
+  useEffect(() => {
+    fetchFood()
+  }, [])
+
   return (
     <Container>
-      <HeaderNavigation title="Nova refeição" />
+      <HeaderNavigation title="Editar Refeição" isEditingFood={true} />
       <ContainerForm>
         <Form>
           <Input label="Nome" value={name} onChangeText={setName} />
@@ -78,16 +105,16 @@ export function NewFood() {
 
           <ContentInputDate>
             <Input
-              value={date}
-              onChangeText={setDate}
               label="Data"
               style={{ width: 153.5 }}
+              value={date}
+              onChangeText={setDate}
             />
             <Input
-              value={timer}
-              onChangeText={setTimer}
               label="Hora"
               style={{ width: 153.5 }}
+              value={timer}
+              onChangeText={setTimer}
             />
           </ContentInputDate>
 
@@ -112,7 +139,7 @@ export function NewFood() {
           </ContainerInputSelect>
         </Form>
 
-        <Button title="Cadastrar refeição" onPress={handleAddFood} />
+        <Button title="Salvar refeição" onPress={handleUpdateFood} />
       </ContainerForm>
     </Container>
   )

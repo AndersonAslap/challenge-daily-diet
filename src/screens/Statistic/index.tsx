@@ -1,3 +1,4 @@
+import { BackButton } from '@components/BackButton'
 import {
   Container,
   ContainerInfo,
@@ -22,6 +23,7 @@ export function Statistic() {
   return (
     <Container percent={percent}>
       <ContainerText>
+        <BackButton />
         <Percent>{percent}%</Percent>
         <Subtitle>das refeições dentro da dieta</Subtitle>
       </ContainerText>

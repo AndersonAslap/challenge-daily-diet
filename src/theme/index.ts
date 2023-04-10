@@ -27,6 +27,7 @@ export default {
     MD: 14,
     LG: 16,
     XL: 18,
+    '1XL': 20,
     '2XL': 24,
     '3XL': 32,
   },
