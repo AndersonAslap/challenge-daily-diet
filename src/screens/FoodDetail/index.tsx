@@ -1,4 +1,10 @@
-import { HeaderNavigation } from '@components/HeaderNavigation'
+import React, { useEffect, useState } from 'react'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { Alert } from 'react-native'
+
+import { foodGetById } from '@storage/food/foodGetById'
+import { foodRemove } from '@storage/food/foodRemove'
+
 import {
   Box,
   Container,
@@ -8,13 +14,12 @@ import {
   Title,
 } from './styles'
 
+import { HeaderNavigation } from '@components/HeaderNavigation'
 import { Button } from '@components/Button'
 import { Label } from '@components/Label'
-import { useNavigation, useRoute } from '@react-navigation/native'
-import { useEffect, useState } from 'react'
-import { foodGetById } from '@storage/food/foodGetById'
-import { Alert, View } from 'react-native'
-import { foodRemove } from '@storage/food/foodRemove'
+import { Loading } from '@components/Loading'
+import { Flag } from '@components/Flag'
+import { Modal } from '@components/Modal'
 
 type RouteParams = {
   id: number
@@ -25,23 +30,31 @@ export function FoodDetail() {
   const route = useRoute()
   const { id, inDiet } = route.params as RouteParams
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [date, setDate] = useState('')
   const [timer, setTimer] = useState('')
 
+  const [openModal, setOpenModal] = useState(false)
+
   const navigation = useNavigation()
 
   async function fetchFood() {
     try {
+      setIsLoading(true)
       const { name, description, date, timer } = await foodGetById(id)
       setName(name)
       setDescription(description)
       setDate(date)
       setTimer(timer)
     } catch (error) {
+      setIsLoading(false)
       console.log(error)
       Alert.alert('Detalhe', 'Falha ao obter o detalhe da comida.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -49,7 +62,7 @@ export function FoodDetail() {
     navigation.navigate('editFood', { id })
   }
 
-  async function execRemoveFood() {
+  async function execRemoveFood(id: number) {
     try {
       await foodRemove(id)
       navigation.navigate('home')
@@ -59,48 +72,54 @@ export function FoodDetail() {
     }
   }
 
-  function handleRemoveFood() {
-    Alert.alert('Remover', 'Você deseja remover esta refeição?', [
-      {
-        text: 'Não',
-        style: 'cancel',
-      },
-      {
-        text: 'Sim',
-        onPress: () => execRemoveFood(),
-      },
-    ])
-  }
-
   useEffect(() => {
     fetchFood()
   }, [])
 
   return (
-    <Container inDiet={inDiet}>
-      <HeaderNavigation title="Refeição" />
-      <ContainerContent>
-        <Content>
-          <Box>
-            <Title>{name}</Title>
-            <Text>{description}</Text>
-          </Box>
+    <>
+      <Modal
+        visible={openModal}
+        onPressCancel={() => setOpenModal(false)}
+        onPressConfirm={() => execRemoveFood(id)}
+      />
+      <Container inDiet={inDiet}>
+        <HeaderNavigation title="Refeição" />
 
-          <Box>
-            <Label title="Data e hora" />
-            <Text>
-              {date} às {timer}
-            </Text>
-          </Box>
-        </Content>
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <ContainerContent>
+            <Content>
+              <Box>
+                <Title>{name}</Title>
+                <Text>{description}</Text>
+              </Box>
 
-        <Button title="Editar refeição" onPress={handleEditFood} />
-        <Button
-          type="LIGHT"
-          title="Excluir refeição"
-          onPress={handleRemoveFood}
-        />
-      </ContainerContent>
-    </Container>
+              <Box>
+                <Label title="Data e hora" />
+                <Text>
+                  {date} às {timer}
+                </Text>
+              </Box>
+
+              <Flag inDiet={inDiet} />
+            </Content>
+
+            <Button
+              title="Editar refeição"
+              onPress={handleEditFood}
+              icon="edit"
+            />
+            <Button
+              icon="delete-outline"
+              type="LIGHT"
+              title="Excluir refeição"
+              onPress={() => setOpenModal(true)}
+            />
+          </ContainerContent>
+        )}
+      </Container>
+    </>
   )
 }

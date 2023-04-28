@@ -10,4 +10,6 @@ export const InputText = styled(TextInput)`
   padding: 14px;
   border: 1px solid ${({ theme }) => theme.COLORS.GRAY_5};
   border-radius: 6px;
+
+  color: ${({ theme }) => theme.COLORS.GRAY_1};
 `

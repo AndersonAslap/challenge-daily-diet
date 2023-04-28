@@ -1,5 +1,7 @@
+import React from 'react'
 import { useNavigation } from '@react-navigation/native'
 import { Container, Description, Divider, Icon, Timer } from './styles'
+import { sliceString } from '@utils/sliceString'
 
 type FoodProps = {
   id: number
@@ -25,7 +27,7 @@ export function FoodItem({ item }: Props) {
     <Container key={id} onPress={handleFoodDetail}>
       <Timer>{timer}</Timer>
       <Divider />
-      <Description>{description}</Description>
+      <Description>{sliceString(description)}</Description>
       <Icon name="circle" inDiet={inDiet} />
     </Container>
   )

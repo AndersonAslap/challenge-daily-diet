@@ -1,9 +1,12 @@
-import { Button } from '@components/Button'
-import { Container, Image, SubTitle, TextWarn, Title } from './styles'
+import React from 'react'
+import { useNavigation, useRoute } from '@react-navigation/native'
 
 import imageSuccess from '@assets/success.png'
 import imageFail from '@assets/fail.png'
-import { useNavigation, useRoute } from '@react-navigation/native'
+
+import { Container, Image, SubTitle, TextWarn, Title } from './styles'
+
+import { Button } from '@components/Button'
 
 type RouteParams = {
   inDiet: boolean
@@ -44,7 +47,11 @@ export function Feedback() {
         </>
       )}
 
-      <Button title="Ir para a página inicial" onPress={handleGoHome} />
+      <Button
+        title="Ir para a página inicial"
+        width={70}
+        onPress={handleGoHome}
+      />
     </Container>
   )
 }
